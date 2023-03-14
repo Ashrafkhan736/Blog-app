@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from werkzeug.utils import secure_filename
 from flask_restful import Api, Resource
 import os
-from logic import UserApi, FollowApi, UnfollowApi, BlogApi, ShowFollowingApi, ShowFollowerApi, FeedApi, SearchApi
+from logic import UserApi, FollowApi, UnfollowApi, BlogApi, ShowFollowingApi, ShowFollowerApi, FeedApi, SearchApi, ExportApi
 from models import *
 from flask_cors import CORS
 from flask_security import Security, SQLAlchemySessionUserDatastore
@@ -71,6 +71,7 @@ api.add_resource(FeedApi, "/api/feed/<string:user_name>")
 api.add_resource(SearchApi, "/api/search/<string:user_name>")
 api.add_resource(ShowFollowingApi, "/api/showfollow")
 api.add_resource(ShowFollowerApi, "/api/showfollower")
+api.add_resource(ExportApi, "/api/export")
 
 # api.add_resource(TrackerApi, "/api/tracker/<int:tracker_id>", "/api/tracker")
 # api.add_resource(LogApi, "/api/log/<string:tracker_type>/<int:log_id>",

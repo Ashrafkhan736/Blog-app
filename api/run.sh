@@ -14,8 +14,8 @@ echo "----------------------------------------------------------------------"
 
 # Activate virtual env
 # . .env/bin/activate
-conda init bash
-conda activate base
+# conda init bash
+# conda activate base
 # export ENV=development
 python3 main.py
-deactivate
+# deactivate

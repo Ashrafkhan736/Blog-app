@@ -25,3 +25,4 @@ class SecurityConfigration(ModelConfigration):
     WTF_CSRF_ENABLED = False
     # let user create new account
     SECURITY_REGISTERABLE = True
+    

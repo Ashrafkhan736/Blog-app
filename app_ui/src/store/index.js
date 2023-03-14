@@ -18,6 +18,9 @@ export default createStore({
     unfollow(state) {
       state.following -= 1;
     },
+    addBlog(state, data) {
+      state.user.blogs.push(data);
+    },
   },
   actions: {
     userInfo(context, data) {
@@ -28,6 +31,9 @@ export default createStore({
     },
     unfollow(context) {
       context.commit("unfollow");
+    },
+    addBlog(context, data) {
+      context.commit("addBlog", data);
     },
   },
   modules: {},

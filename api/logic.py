@@ -4,7 +4,7 @@ from flask_security import utils, SQLAlchemySessionUserDatastore, auth_required
 from models import *
 from flask_cors import cross_origin
 import datetime
-
+from tasks import send_email
 # variable to create new user
 user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
 
@@ -13,6 +13,7 @@ class UserApi(Resource):
     @cross_origin(send_wildcard=True)
     def get(self, user_name):
         user = User.query.filter(User.user_name == user_name).one()
+        user.timestamp = datetime.datetime.now()
         try:
             following = Follow.query.filter(
                 Follow.follower == user.user_name).count()  # persons that user follow
@@ -22,6 +23,8 @@ class UserApi(Resource):
             following = "fail"
             follower = "fail"
         finally:
+            db.session.add(user)
+            db.session.commit()
             return jsonify({"user": user, "following": following, "follower": follower})
 
     def post(self):
@@ -158,3 +161,10 @@ class SearchApi(Resource):
         result = [data[0] for data in row]
         print(row)
         return jsonify(result)
+
+
+class ExportApi(Resource):
+    def post(self):
+        data = request.form
+        email = data.get("email")
+        send_email.delay(email)

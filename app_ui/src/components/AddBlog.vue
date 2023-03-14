@@ -51,7 +51,7 @@
                 />
               </div>
               <div class="col mb-3">
-                <button class="btn btn-primary">Submit</button>
+                <button class="btn btn-primary" data-bs-dismiss="modal">Submit</button>
               </div>
             </form>
           </div>
@@ -96,7 +96,7 @@
         let resp = await fetch(this.$store.state.base_url + `/api/blog`, { method: "post", body: formData });
         let data = await resp.json();
         // console.log(data);
-        this.$store.state.user.blogs.push(data);
+        this.$store.dispatch("addBlog", data);
       },
       submitImage() {
         console.log("Hello");

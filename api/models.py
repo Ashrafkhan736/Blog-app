@@ -78,21 +78,21 @@ class User(db.Model, UserMixin):
     user_name = db.Column(db.String, unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String(255),  nullable=False)
-    timestamp = db.Column(db.DateTime, nullable=False )
+    timestamp = db.Column(db.DateTime, nullable=False)
     active = db.Column(db.Boolean, default=True)
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
 
     blogs = db.relationship(
         'Blog', primaryjoin="User.id == Blog.id", backref='user', lazy=True)
     roles = db.relationship('Role', secondary='roles_users',
-                            backref='users', lazy=True)
+                            backref='user', lazy=True)
 
     def get_security_payload(self) -> dict[str, any]:
         self.timestamp = datetime.now()
         following = Follow.query.filter(
-                Follow.follower == self.user_name).count()  # persons that user follow
+            Follow.follower == self.user_name).count()  # persons that user follow
         follower = Follow.query.filter(
-                Follow.following == self.user_name).count()  # persons who follow user
+            Follow.following == self.user_name).count()  # persons who follow user
         return {'id': self.id,
                 'user_name': self.user_name,
                 'email': self.email,
