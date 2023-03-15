@@ -6,11 +6,11 @@
         <form @submit.prevent="login">
           <div class="mb-3 mt-3">
             <label for="user_name" class="form-label"> <h4>User Name</h4></label>
-            <input type="user_name" class="form-control" name="user_name" v-model.lazy="formData.user_name" required />
+            <input type="user_name" class="form-control" name="user_name" v-model.lazy="data.user_name" required />
           </div>
           <div class="mb-3">
             <label for="password" class="form-label"> <h4>Password</h4></label>
-            <input :type="type" class="form-control" v-model.lazy="formData.password" name="password" required />
+            <input :type="type" class="form-control" v-model.lazy="data.password" name="password" required />
             <input type="checkbox" class="from-check-input" name="toggle" @click="toggle" />
             <label for="toggle" class="form-check-label">show password</label>
           </div>
@@ -31,7 +31,7 @@
   export default {
     data() {
       return {
-        formData: { user_name: null, password: null },
+        data: { user_name: null, password: null },
         type: "password",
       };
     },
@@ -44,27 +44,27 @@
         }
       },
       login() {
-        console.log("looging"),
-          fetch(this.$store.state.base_url + `/api/user/${this.formData.user_name}`, {
-            method: "get",
-            // mode: "cors",
-            // headers: {
-            //   "Content-Type": "application/json",
-            // },
-            // body: JSON.stringify(this.formData),
+        console.log("looging");
+        let formData = new FormData();
+        formData.append("user_name", this.data.user_name);
+        formData.append("password", this.data.password);
+
+        fetch(this.$store.state.base_url + `/api/user/${this.data.user_name}`, {
+          method: "get",
+          // body: formData,
+        })
+          .then((r) => {
+            if (!r.ok) {
+              console.log(r);
+              throw new Error(`Error status : ${r.status}`);
+            }
+            return r.json();
           })
-            .then((r) => {
-              if (!r.ok) {
-                console.log(r);
-                throw new Error(`Error status : ${r.status}`);
-              }
-              return r.json();
-            })
-            .then((d) => {
-              this.$store.dispatch("userInfo", d);
-              this.$router.push({ path: "/feed" });
-            })
-            .catch((err) => console.log(err));
+          .then((d) => {
+            this.$store.dispatch("userInfo", d);
+            this.$router.push({ path: "/feed" });
+          })
+          .catch((err) => console.log(err));
       },
     },
   };

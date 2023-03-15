@@ -5,7 +5,7 @@ temp
 .DS_Store
 node_modules
 /dist
-
+*.csv
 
 # local env files
 .env.local

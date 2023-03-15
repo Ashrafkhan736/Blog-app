@@ -3,8 +3,8 @@ from flask import jsonify, request
 from flask_security import utils, SQLAlchemySessionUserDatastore, auth_required
 from models import *
 from flask_cors import cross_origin
+from tasks import *
 import datetime
-from tasks import send_email
 # variable to create new user
 user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
 
@@ -41,6 +41,7 @@ class UserApi(Resource):
     @cross_origin(send_wildcard=True)
     def put(self):
         data = request.form
+        print(data)
         # user = User(user_name=data.get("user_name"), email=data.get(
         #     "email"), password=data.get('password'))
         user_datastore.create_user(user_name=data.get(
@@ -164,6 +165,10 @@ class SearchApi(Resource):
 
 
 class ExportApi(Resource):
+    def get(self):
+        print("hello")
+        just_say_hello.delay("ashraf")
+
     def post(self):
         data = request.form
         email = data.get("email")

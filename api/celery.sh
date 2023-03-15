@@ -15,6 +15,11 @@ echo "----------------------------------------------------------------------"
 # # Activate virtual env
 # . .env/bin/activate
 # export ENV=development
-conda activate
-celery -A main.celery beat --max-interval 1 -l info
-deactivate
+# conda activate
+#run redis
+# sudo systemctl start redis
+
+# celery -A main.celery beat --max-interval 1 -l info
+celery -A main.celery worker -l info
+
+# deactivate

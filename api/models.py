@@ -1,4 +1,4 @@
-from datetime import datetime
+import datetime
 from flask_sqlalchemy import SQLAlchemy
 from dataclasses import dataclass
 from flask_sqlalchemy import SQLAlchemy
@@ -25,7 +25,7 @@ class Follow(db.Model):
 class Blog(db.Model):
     __tablename__ = 'blog'
     blog_id: int
-    timestamp: datetime
+    timestamp: datetime.datetime
     title: str
     description: str
     id: int
@@ -88,7 +88,7 @@ class User(db.Model, UserMixin):
                             backref='user', lazy=True)
 
     def get_security_payload(self) -> dict[str, any]:
-        self.timestamp = datetime.now()
+        self.timestamp = datetime.datetime.now()
         following = Follow.query.filter(
             Follow.follower == self.user_name).count()  # persons that user follow
         follower = Follow.query.filter(

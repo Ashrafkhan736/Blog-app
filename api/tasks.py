@@ -1,9 +1,7 @@
 from workers import celery
-from datetime import datetime
 from models import *
 import csv
 from werkzeug.utils import secure_filename
-import os
 import smtplib
 from email import encoders
 # from email.utils import COMMASPACE
@@ -26,28 +24,28 @@ def just_say_hello(name):
 
 
 @celery.task
-def send_email(email):
+def send_email(email_addres):
     msg = MIMEMultipart()
     msg['From'] = f'Ashraf khan {MAIL_USERNAME}'
-    msg['To'] = email
+    msg['To'] = email_addres
     msg['Subject'] = "Exported blog data"
     body = '''Hello,
             this your whole blog data.'''
     msg.attach(MIMEText(body, 'plain'))
-    create_csv(email=email)
-    filename = secure_filename('output.json')
-    with open(file=filename) as attachment:
-        part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment.read())
-        encoders.encode_base64(part)
-        part.add_header('Content-Disposition',
-                        f"attachment; filename= {filename.split('/')[-1]}")
-        msg.attach(part)
+    # create_csv(email=email_addres)
+    # filename = secure_filename('output.csv')
+    # with open(file=filename) as attachment:
+    #     part = MIMEBase('application', 'octet-stream')
+    #     part.set_payload(attachment.read())
+    #     encoders.encode_base64(part)
+    #     part.add_header('Content-Disposition',
+    #                     f"attachment; filename= {filename.split('/')[-1]}")
+    #     msg.attach(part)
     # attachment.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     with smtplib.SMTP(MAIL_SERVER, MAIL_PORT) as server:
-        server.starttls()
+        # server.starttls()
         server.login(MAIL_USERNAME, MAIL_PASSWORD)
-        server.sendmail(MAIL_USERNAME, email, msg.as_string())
+        server.sendmail(MAIL_USERNAME, email_addres, msg.as_string())
     return print({'message': 'Email sent successfully!'})
 
 
