@@ -102,7 +102,7 @@
         let formData = new FormData();
         formData.append("current_user", this.$store.state.user.user_name);
         formData.append("user", user_name);
-        fetch(this.$store.state.base_url + "/api/unfollow", {
+        fetch(`${this.$store.state.base_url}/api/unfollow`, {
           method: "post",
           body: formData,
           headers: { "Authentication-Token": this.$store.state.authentication_token },

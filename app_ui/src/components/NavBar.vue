@@ -53,11 +53,16 @@
           <li class="nav-item">
             <AddBlog />
           </li>
-          <li class="nav-item">
+          <li class="nav-item ms-2">
             <UserSearch />
           </li>
-          <li class="nav-item">
-            <a class="btn btn-primary"> <i class="bi bi-box-arrow-right"></i>Logout</a>
+          <li class="nav-item ms-2">
+            <button class="btn btn-primary" title="Export data" @click="exportData">
+              <i class="bi bi-cloud-arrow-down-fill"></i>
+            </button>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="btn btn-primary" title="Logout" @click="logOut"> <i class="bi bi-box-arrow-right"></i></a>
           </li>
         </ul>
       </div>
@@ -82,10 +87,30 @@
       redirect() {
         this.$router.push({ name: "about", params: { user_name: this.user_name } });
       },
+      exportData() {
+        const formData = new FormData();
+        formData.append("email", this.$store.state.user.email);
+        formData.append("user_name", this.$store.state.user.user_name);
+        fetch(`${this.$store.state.base_url}/api/export`, {
+          method: "post",
+          body: formData,
+          headers: { "Authentication-Token": this.$store.state.authentication_token },
+        });
+      },
+      logOut() {
+        fetch(`${this.$store.state.base_url}/logout`, {
+          method: "post",
+          body: JSON.stringify({ email: this.$store.state.user.email }),
+        }).then((r) => {
+          console.log(`logout ${r}`);
+          localStorage.clear();
+          this.$router.push({ name: "login" });
+        });
+      },
       find(user_name) {
         // console.log(user_name);
         if (user_name.length > 0) {
-          fetch(`http://127.0.0.1:5000/api/search/${user_name}`, {
+          fetch(`${this.$store.state.base_url}/api/search/${user_name}`, {
             method: "get",
             headers: { "Authentication-Token": this.$store.state.authentication_token },
           })

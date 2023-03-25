@@ -10,7 +10,7 @@
         @input="find(user_name)"
         @focus="showResults()"
       />
-      <button class="btn btn-outline-success" type="submit">Search</button>
+      <button class="btn btn-outline-success" type="submit" title="search"><i class="bi bi-search"></i></button>
       <!-- <button @click="redirect()">search</button> -->
     </form>
     <template v-if="showPopoverElement">
@@ -53,7 +53,7 @@
       find(user_name) {
         // console.log(user_name);
         if (user_name.length > 0) {
-          fetch(`http://127.0.0.1:5000/api/search/${user_name}`, {
+          fetch(`${this.$store.state.base_url}/api/search/${user_name}`, {
             method: "get",
             headers: { "Authentication-Token": this.$store.state.authentication_token },
           })
