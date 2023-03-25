@@ -44,7 +44,7 @@
                 <input
                   class="form-control"
                   ref="image"
-                  @change="handleUploadImages()"
+                  @change="handleImageUpload()"
                   type="file"
                   id="image"
                   accept="image/*"
@@ -66,7 +66,7 @@
     title: "Addblog",
 
     data() {
-      return { title: "", description: "", image: [], feed: [] };
+      return { title: "", description: "", image: null, feed: [] };
     },
     computed: {
       imagesSelected() {
@@ -84,8 +84,8 @@
       triggerChangeOnImagesInput() {
         this.$refs.image.click();
       },
-      handleUploadImages() {
-        this.image = this.$refs.image.files;
+      handleImageUpload() {
+        this.image = this.$refs.image.files[0];
       },
       async submitBlog() {
         const formData = new FormData();
@@ -93,6 +93,7 @@
         formData.append("id", this.$store.state.user.id);
         formData.append("title", this.title);
         formData.append("description", this.description);
+        formData.append("image", this.image);
         let resp = await fetch(this.$store.state.base_url + `/api/blog`, { method: "post", body: formData });
         let data = await resp.json();
         // console.log(data);
@@ -107,9 +108,7 @@
         fetch("http://127.0.0.1:5000/api/image", {
           method: "post",
           body: formData,
-          // headers: {
-          //   "Content-Type": "multipart/form-data",
-          // },
+          headers: { "Authentication-Token": this.$store.state.authentication_token },
         })
           .then((response) => {
             console.log(`SUCCESS!! Response: ${response.data}`);

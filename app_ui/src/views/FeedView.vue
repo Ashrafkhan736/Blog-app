@@ -8,8 +8,12 @@
     <!-- <label for="search">Username</label>
     <input @input="find(username)" v-model.trim="username" type="text" id="search" /> -->
     <h3 class="text-start">My Feed:</h3>
-    <div v-for="blog in feed" :key="blog.blog_id">
+    <div v-if="feed.length > 0" v-for="blog in feed" :key="blog.blog_id">
       <BlogCard :blog="blog" />
+    </div>
+    <div v-else>
+      <img class="img-fluid max-width-100" src="/img/monsters-inc-sully.gif" alt="No feed" />
+      <p>Sorry, you have no feed. Follow some users to see their posts.</p>
     </div>
   </div>
 </template>
@@ -37,7 +41,10 @@
       find(username) {
         // console.log(username);
         if (username.length > 0) {
-          fetch(`http://127.0.0.1:5000/api/search/${username}`, { method: "get" })
+          fetch(`http://127.0.0.1:5000/api/search/${username}`, {
+            method: "get",
+            headers: { "Authentication-Token": this.$store.state.authentication_token },
+          })
             .then((res) => {
               return res.json();
             })
@@ -49,6 +56,7 @@
       getFeed() {
         fetch(this.$store.state.base_url + `/api/feed/${this.$store.state.user.user_name}`, {
           method: "get",
+          headers: { "Authentication-Token": this.$store.state.authentication_token },
         })
           .then((res) => {
             // console.log(res);

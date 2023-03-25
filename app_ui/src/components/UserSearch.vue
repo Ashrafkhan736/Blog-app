@@ -53,7 +53,10 @@
       find(user_name) {
         // console.log(user_name);
         if (user_name.length > 0) {
-          fetch(`http://127.0.0.1:5000/api/search/${user_name}`, { method: "get" })
+          fetch(`http://127.0.0.1:5000/api/search/${user_name}`, {
+            method: "get",
+            headers: { "Authentication-Token": this.$store.state.authentication_token },
+          })
             .then((res) => {
               return res.json();
             })

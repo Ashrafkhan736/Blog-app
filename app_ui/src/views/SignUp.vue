@@ -24,6 +24,19 @@
             />
             <label for="toggle" class="form-check-label">show password</label>
           </div>
+          <div class="mb-3">
+            <label for="image" class="form-label">
+              <h4>Profile Image</h4>
+            </label>
+            <input
+              type="file"
+              ref="image"
+              name="image"
+              class="form-control"
+              accept="image/*"
+              @change="handleImageUpload()"
+            />
+          </div>
 
           <button class="btn btn-info rounded-pill">Sign-up</button>
         </form>
@@ -44,6 +57,7 @@
           user_name: null,
           password: null,
           email: null,
+          image: null, // new property to hold the selected image file
         },
         type: "password",
       };
@@ -51,10 +65,14 @@
     methods: {
       toggle() {
         if (this.type === "password") {
-          this.type = "type";
+          this.type = "text";
         } else {
           this.type = "password";
         }
+      },
+      handleImageUpload() {
+        // this.data.image = event.target.files[0];
+        this.data.image = this.$refs.image.files[0];
       },
       signup() {
         console.log("singing");
@@ -62,7 +80,7 @@
         formData.append("user_name", this.data.user_name);
         formData.append("password", this.data.password);
         formData.append("email", this.data.email);
-
+        formData.append("image", this.data.image);
         fetch(this.$store.state.base_url + "/api/user", {
           method: "put",
           body: formData,
@@ -70,7 +88,7 @@
           .then((r) => r.json())
           .then((d) => {
             console.log(d);
-            this.$router.push({ path: "/login" });
+            this.$router.push({ name: "login" });
           })
           .catch((e) => console.log(e));
       },

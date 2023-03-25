@@ -5,12 +5,12 @@
       <div class="card-body">
         <form @submit.prevent="login">
           <div class="mb-3 mt-3">
-            <label for="user_name" class="form-label"> <h4>User Name</h4></label>
-            <input type="user_name" class="form-control" name="user_name" v-model.lazy="data.user_name" required />
+            <label for="email" class="form-label"> <h4>Email</h4></label>
+            <input type="email" class="form-control" name="email" v-model.lazy="data.email" required />
           </div>
           <div class="mb-3">
             <label for="password" class="form-label"> <h4>Password</h4></label>
-            <input :type="type" class="form-control" v-model.lazy="data.password" name="password" required />
+            <input :type="this.type" class="form-control" v-model.lazy="data.password" name="password" required />
             <input type="checkbox" class="from-check-input" name="toggle" @click="toggle" />
             <label for="toggle" class="form-check-label">show password</label>
           </div>
@@ -31,27 +31,30 @@
   export default {
     data() {
       return {
-        data: { user_name: null, password: null },
+        data: { email: null, password: null },
         type: "password",
       };
     },
     methods: {
       toggle() {
         if (this.type === "password") {
-          this.type = "type";
+          this.type = "text";
         } else {
           this.type = "password";
         }
       },
       login() {
-        console.log("looging");
+        console.log("loging");
         let formData = new FormData();
-        formData.append("user_name", this.data.user_name);
+        formData.append("email", this.data.email);
         formData.append("password", this.data.password);
 
-        fetch(this.$store.state.base_url + `/api/user/${this.data.user_name}`, {
-          method: "get",
-          // body: formData,
+        fetch(this.$store.state.base_url + "/login?include_auth_token", {
+          method: "post",
+          body: JSON.stringify(this.data),
+          headers: {
+            "Content-Type": "application/json",
+          },
         })
           .then((r) => {
             if (!r.ok) {
@@ -61,7 +64,8 @@
             return r.json();
           })
           .then((d) => {
-            this.$store.dispatch("userInfo", d);
+            console.log(d.response.user);
+            this.$store.dispatch("userInfo", d.response.user);
             this.$router.push({ path: "/feed" });
           })
           .catch((err) => console.log(err));

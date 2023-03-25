@@ -40,7 +40,7 @@
       </div>
       <img
         class="img-fluid img-thumbnail rounded-circle"
-        src="#"
+        :src="this.updated_userInfo.img_path"
         alt="User profile image"
         style="width: 100px; height: 100px"
       />
@@ -84,7 +84,11 @@
         let formData = new FormData();
         formData.append("current_user", this.$store.state.user.user_name);
         formData.append("user", user_name);
-        fetch(this.$store.state.base_url + "/api/follow", { method: "post", body: formData }).then((resp) => {
+        fetch(this.$store.state.base_url + "/api/follow", {
+          method: "post",
+          body: formData,
+          headers: { "Authentication-Token": this.$store.state.authentication_token },
+        }).then((resp) => {
           console.log(resp.json());
         });
         this.updated_already_follow = true;
@@ -98,7 +102,11 @@
         let formData = new FormData();
         formData.append("current_user", this.$store.state.user.user_name);
         formData.append("user", user_name);
-        fetch(this.$store.state.base_url + "/api/unfollow", { method: "post", body: formData }).then((resp) => {
+        fetch(this.$store.state.base_url + "/api/unfollow", {
+          method: "post",
+          body: formData,
+          headers: { "Authentication-Token": this.$store.state.authentication_token },
+        }).then((resp) => {
           console.log(resp.json());
         });
         this.updated_already_follow = false;

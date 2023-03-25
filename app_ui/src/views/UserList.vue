@@ -60,7 +60,7 @@
       if (this.type === "follow") {
         fetch(`http://127.0.0.1:5000/api/showfollow`, {
           method: "post",
-
+          headers: { "Authentication-Token": this.$store.state.authentication_token },
           body: formData,
         })
           .then((res) => {
@@ -73,7 +73,7 @@
       } else {
         fetch(`http://127.0.0.1:5000/api/showfollower`, {
           method: "post",
-
+          headers: { "Authentication-Token": this.$store.state.authentication_token },
           body: formData,
         })
           .then((res) => {

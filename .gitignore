@@ -1,6 +1,7 @@
 *.sqlite3
 __pycache__
 temp
+celerybeat*
 
 .DS_Store
 node_modules

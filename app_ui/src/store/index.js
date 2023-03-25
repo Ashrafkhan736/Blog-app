@@ -8,7 +8,8 @@ export default createStore({
   getters: {},
   mutations: {
     userInfo(state, data) {
-      state.user = data.user;
+      state.user = data;
+      state["authentication_token"] = data.authentication_token;
       state.following = data.following;
       state.follower = data.follower;
     },
@@ -20,6 +21,12 @@ export default createStore({
     },
     addBlog(state, data) {
       state.user.blogs.push(data);
+    },
+    editBlog(state, obj) {
+      state.user.blogs[obj["index"]] = obj["data"];
+    },
+    deleteBlog(state, index) {
+      state.user.blogs.splice(index, 1);
     },
   },
   actions: {
@@ -34,6 +41,12 @@ export default createStore({
     },
     addBlog(context, data) {
       context.commit("addBlog", data);
+    },
+    editBlog(context, obj) {
+      context.commit("editBlog", obj);
+    },
+    deleteBlog(context, index) {
+      context.commit("deleteBlog", index);
     },
   },
   modules: {},
