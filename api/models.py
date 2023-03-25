@@ -28,13 +28,16 @@ class Blog(db.Model):
     timestamp: datetime.datetime
     title: str
     description: str
+    img_path: str
     id: int
     user_name: str
 
     blog_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     timestamp = db.Column(db.DateTime, nullable=False)
     title = db.Column(db.String, unique=False, nullable=False)
-    description = db.Column(db.String, unique=False, nullable=False)
+    description = db.Column(db.String, unique=False, nullable=True)
+    img_path = db.Column(db.String(255),  nullable=False)
+
     id = db.Column(db.Integer, db.ForeignKey(
         'user.id'), nullable=False)
     user_name = db.Column(db.String, db.ForeignKey(
@@ -72,6 +75,7 @@ class User(db.Model, UserMixin):
     id: int
     user_name: str
     email: str
+    img_path: str
     blogs: Blog
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
@@ -79,13 +83,14 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String(255),  nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False)
+    img_path = db.Column(db.String(255),  nullable=True)
     active = db.Column(db.Boolean, default=True)
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
 
     blogs = db.relationship(
-        'Blog', primaryjoin="User.id == Blog.id", backref='user', lazy=True)
+        'Blog', primaryjoin="User.id == Blog.id", backref='user', lazy='subquery')
     roles = db.relationship('Role', secondary='roles_users',
-                            backref='user', lazy=True)
+                            backref='user', lazy='subquery')
 
     def get_security_payload(self) -> dict[str, any]:
         self.timestamp = datetime.datetime.now()

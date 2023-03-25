@@ -5,12 +5,27 @@ from models import *
 from flask_cors import cross_origin
 from tasks import *
 import datetime
+import os
+from create_app import cache
+from tasks import export_job
+# flask caching
+
+
 # variable to create new user
 user_datastore = SQLAlchemySessionUserDatastore(db.session, User, Role)
 
+# config for saving images
+upload_folder = 'http://127.0.0.1:5000/static'
+pfp_folder = 'pfp'
+blog_folder = 'blog_pic'
+dummy_pfp = 'dummy-profile-pic.jpg'
+dummy_blog_image = 'dummy_blog_image.jpeg'
+
 
 class UserApi(Resource):
+
     @cross_origin(send_wildcard=True)
+    @cache.cached(key_prefix='get_user')
     def get(self, user_name):
         user = User.query.filter(User.user_name == user_name).one()
         user.timestamp = datetime.datetime.now()
@@ -27,6 +42,7 @@ class UserApi(Resource):
             db.session.commit()
             return jsonify({"user": user, "following": following, "follower": follower})
 
+    @auth_required("token")
     def post(self):
         data = request.form
         user = User.query.filter(User.user_name == data.get("user")).one()
@@ -39,31 +55,63 @@ class UserApi(Resource):
         return jsonify({"user": user, "follower": follower, "following": following, "already_follow": True if already_follow else False})
 
     @cross_origin(send_wildcard=True)
+    @auth_required("token")
     def put(self):
         data = request.form
-        print(data)
-        # user = User(user_name=data.get("user_name"), email=data.get(
-        #     "email"), password=data.get('password'))
-        user_datastore.create_user(user_name=data.get(
-            "user_name"), email=data.get("email"), password=utils.hash_password(data.get("password")), timestamp=datetime.datetime.now())
-        # db.session.add(user)
+        images = request.files.getlist('image')
+        if images:
+            image = images[0]
+            timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            filename = secure_filename(f"{timestamp}_{image.filename}")
+            img_path = os.path.join(upload_folder, pfp_folder, filename)
+            image.save(img_path)
+        else:
+            img_path = os.path.join(
+                upload_folder, pfp_folder, dummy_pfp
+            )
+
+        user_datastore.create_user(
+            user_name=data.get("user_name"),
+            email=data.get("email"),
+            password=utils.hash_password(data.get("password")),
+            timestamp=datetime.datetime.now(),
+            img_path=img_path
+        )
         db.session.commit()
         return jsonify({"msg": "user created"})
 
 
 class BlogApi(Resource):
+    @auth_required("token")
     def get(self, user_name):
         data = Blog.query.filter(Blog.user_name == user_name).all()
         return jsonify(data)
 
+    @auth_required("token")
     def post(self):
         data = request.form
-        blog = Blog(title=data.get('title'), user_name=data.get("user_name"), timestamp=datetime.datetime.now(),
-                    description=data.get('description'), id=data.get('id'))
+        images = request.files.getlist('image')
+        if images:
+            image = images[0]
+            timestamp = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
+            filename = secure_filename(f"{timestamp}_{image.filename}")
+            img_path = os.path.join(upload_folder, blog_folder, filename)
+            image.save(img_path)
+        else:
+            img_path = os.path.join(
+                upload_folder, blog_folder, dummy_blog_image)
+        blog: Blog = Blog(title=data.get('title'),
+                          user_name=data.get("user_name"),
+                          timestamp=datetime.datetime.now(),
+                          description=data.get('description'),
+                          id=data.get('id'),
+                          img_path=img_path
+                          )
         db.session.add(blog)
         db.session.commit()
         return jsonify(blog)
 
+    @auth_required("token")
     def put(self, blog_id):
         data = request.form
         blog = Blog.query.filter(Blog.blog_id == blog_id).one()
@@ -73,6 +121,7 @@ class BlogApi(Resource):
         db.session.commit()
         return jsonify(blog)
 
+    @auth_required("token")
     def delete(self, blog_id):
         Blog.query.filter(Blog.blog_id == blog_id).delete()
         db.session.commit()
@@ -80,19 +129,23 @@ class BlogApi(Resource):
 
 
 class FeedApi(Resource):
+
+    @auth_required("token")
     def get(self, user_name):
         # persons that user follow
-        row = Follow.query.with_entities(Follow.following).filter(
+        row: Follow = Follow.query.with_entities(Follow.following).filter(
             Follow.follower == user_name).all()
         follow = [data[0] for data in row]
         # print("follow : ", follow)
-        feed = Blog.query.filter(Blog.user_name.in_(follow)).all()
+        feed: Blog = Blog.query.filter(Blog.user_name.in_(follow)).all()
         # feed = [item for item in feed]
         # print("feed :",feed)
         return jsonify(feed)
 
 
 class FollowApi(Resource):
+
+    @auth_required("token")
     def post(self):
         data = request.form
         # current_user follow the user
@@ -104,6 +157,8 @@ class FollowApi(Resource):
 
 
 class UnfollowApi(Resource):
+
+    @auth_required("token")
     def post(self):
         data = request.form
         # current_user unfollow user
@@ -115,6 +170,8 @@ class UnfollowApi(Resource):
 
 
 class ShowFollowingApi(Resource):
+
+    @auth_required("token")
     def post(self):
         data = request.form
         cur_user = data.get("current_user")
@@ -134,6 +191,8 @@ class ShowFollowingApi(Resource):
 
 
 class ShowFollowerApi(Resource):
+
+    @auth_required("token")
     def post(self):
         data = request.form
         cur_user = data.get("current_user")
@@ -154,6 +213,8 @@ class ShowFollowerApi(Resource):
 
 
 class SearchApi(Resource):
+
+    @auth_required("token")
     def get(self, user_name):
         serach = f"{user_name}%"
         print(serach)
@@ -165,11 +226,15 @@ class SearchApi(Resource):
 
 
 class ExportApi(Resource):
+    @auth_required('token')
     def get(self):
         print("hello")
-        just_say_hello.delay("ashraf")
+        return jsonify({"msg": "hello"})
+        # just_say_hello.delay("ashraf")
 
     def post(self):
         data = request.form
-        email = data.get("email")
-        send_email.delay(email)
+        export_job.delay(
+            user_name=data.get("user_name"),
+            email=data.get("email")
+        )
